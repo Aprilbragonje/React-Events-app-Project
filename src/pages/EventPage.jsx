@@ -10,6 +10,7 @@ import {
   Input,
   Textarea,
   Dialog,
+  Checkbox,
 } from "@chakra-ui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEvents } from "../context/EventsContext";
@@ -90,8 +91,27 @@ export const EventPage = () => {
     }
   };
 
+  const toggleCategory = (id) => {
+    // feedb punt 3  categorie is nu bewerkbaar
+    setFormData((prev) => ({
+      ...prev,
+      categoryIds: prev.categoryIds?.includes(id)
+        ? prev.categoryIds.filter((catId) => catId !== id)
+        : [...(prev.categoryIds ?? []), id],
+    }));
+  };
+
   return (
     <VStack spacing={6} py={10}>
+      <Button // feedb punt 4 terug knop vanuit deze pagina.
+        alignSelf="flex-start"
+        colorPalette="gray"
+        borderRadius="full"
+        onClick={() => navigate("/")}
+      >
+        ← Back to events
+      </Button>
+
       <Box
         bg="white"
         borderRadius="2xl"
@@ -216,6 +236,24 @@ export const EventPage = () => {
                       })
                     }
                   />
+
+                  <VStack align="start" w="100%">
+                    {categories.map(
+                      (
+                        category, // feedb punt 3  categorie toevoegen of verwijderen bij bewerken
+                      ) => (
+                        <Checkbox.Root
+                          key={category.id}
+                          checked={formData.categoryIds?.includes(category.id)}
+                          onCheckedChange={() => toggleCategory(category.id)}
+                        >
+                          <Checkbox.HiddenInput />
+                          <Checkbox.Control />
+                          <Checkbox.Label>{category.name}</Checkbox.Label>
+                        </Checkbox.Root>
+                      ),
+                    )}
+                  </VStack>
                 </VStack>
               )}
             </Dialog.Body>

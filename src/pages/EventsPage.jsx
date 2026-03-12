@@ -8,19 +8,25 @@ import {
   HStack,
   Badge,
   Input,
+  SimpleGrid,
+  Skeleton,
   Checkbox,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useEvents } from "../context/EventsContext";
 
 export const EventsPage = () => {
-  const { events, categories, loading } = useEvents(); // event ophalen via context
+  const { events, categories, loading, error } = useEvents(); // event ophalen via context
 
   const [searchTerm, setSearchTerm] = useState(""); // zoek functie
   const [selectedCategories, setSelectedCategories] = useState([]);
 
-  if (loading) {
-    return <Heading p={10}>Loading...</Heading>; //When loading UI skeleton zichtbaar
+  if (error) {
+    return (
+      <Heading p={10} color="red.500">
+        {error}
+      </Heading>
+    );
   }
 
   const handleCategoryChange = (id) => {
@@ -77,73 +83,88 @@ export const EventsPage = () => {
         ))}
       </HStack>
 
-      {filteredEvents.map(
-        (
-          event, // events tonen op de pagina
-        ) => (
-          <Link
-            key={event.id} //klikbaar maken event
-            to={`/events/${event.id}`}
-            style={{ width: "100%", textDecoration: "none" }}
-          >
-            <Box
-              bg="white"
-              borderRadius="2xl"
-              overflow="hidden"
-              shadow="sm"
-              transition="all 0.25s ease"
-              _hover={{ shadow: "xl", transform: "translateY(-6px)" }}
-            >
-              <Image
-                src={event.image}
-                alt={event.title}
-                objectFit="cover"
-                h="220px"
-                w="100%"
-              />
-
-              <Box p={6}>
-                <Heading size="md" mb={2} color="gray.800">
-                  {event.title}
-                </Heading>
-
-                <Text fontSize="sm" color="gray.600" mb={3}>
-                  {event.description}
-                </Text>
-
-                <Text fontSize="xs" color="gray.500" mb={4}>
-                  {new Date(event.startTime).toLocaleString()} —{" "}
-                  {new Date(event.endTime).toLocaleString()}
-                </Text>
-
-                <HStack spacing={2} wrap="wrap">
-                  {event.categoryIds?.map((catId) => {
-                    const category = categories.find(
-                      //Catogories
-                      (cat) => cat.id === catId,
-                    );
-
-                    return (
-                      <Badge
-                        key={catId}
-                        px={3}
-                        py={1}
-                        borderRadius="full"
-                        bg="orange.100"
-                        color="orange.700"
-                      >
-                        {category?.name}
-                      </Badge>
-                    );
-                  })}
-                </HStack>
-              </Box>
+      {loading ? ( //feeedb punt 1 en 2 kolommen toegevoegd en skeleton loading, nu zie je een loading UI ipv alleen tekst.
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8} w="100%">
+          {[1, 2, 3].map((i) => (
+            <Box key={i} bg="white" borderRadius="2xl" overflow="hidden" p={4}>
+              <Skeleton height="220px" mb={4} />
+              <Skeleton height="20px" mb={2} />
+              <Skeleton height="16px" mb={2} />
+              <Skeleton height="16px" />
             </Box>
-          </Link>
-        ),
+          ))}
+        </SimpleGrid>
+      ) : (
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8} w="100%">
+          {filteredEvents.map(
+            (
+              event, // events tonen op de pagina
+            ) => (
+              <Link
+                key={event.id} //klikbaar maken event
+                to={`/events/${event.id}`}
+                style={{ width: "100%", textDecoration: "none" }}
+              >
+                <Box
+                  bg="white"
+                  borderRadius="2xl"
+                  overflow="hidden"
+                  shadow="sm"
+                  transition="all 0.25s ease"
+                  _hover={{ shadow: "xl", transform: "translateY(-6px)" }}
+                >
+                  <Image
+                    src={event.image}
+                    alt={event.title}
+                    objectFit="cover"
+                    h="220px"
+                    w="100%"
+                  />
+
+                  <Box p={6}>
+                    <Heading size="md" mb={2} color="gray.800">
+                      {event.title}
+                    </Heading>
+
+                    <Text fontSize="sm" color="gray.600" mb={3}>
+                      {event.description}
+                    </Text>
+
+                    <Text fontSize="xs" color="gray.500" mb={4}>
+                      {new Date(event.startTime).toLocaleString()} —{" "}
+                      {new Date(event.endTime).toLocaleString()}
+                    </Text>
+
+                    <HStack spacing={2} wrap="wrap">
+                      {event.categoryIds?.map((catId) => {
+                        const category = categories.find(
+                          //Catogories
+                          (cat) => cat.id === catId,
+                        );
+
+                        return (
+                          <Badge
+                            key={catId}
+                            px={3}
+                            py={1}
+                            borderRadius="full"
+                            bg="orange.100"
+                            color="orange.700"
+                          >
+                            {category?.name}
+                          </Badge>
+                        );
+                      })}
+                    </HStack>
+                  </Box>
+                </Box>
+              </Link>
+            ),
+          )}
+        </SimpleGrid>
       )}
 
-      {filteredEvents.length === 0 && (
+      {!loading && filteredEvents.length === 0 && (
         <Text color="gray.500">No events found.</Text>
       )}
     </VStack>

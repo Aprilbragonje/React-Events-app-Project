@@ -6,6 +6,7 @@ export const EventsProvider = ({ children }) => {
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // verbeterpunt 6 error state
 
   //haalt events op van server
 
@@ -13,6 +14,7 @@ export const EventsProvider = ({ children }) => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null); // verbeterpunt 6 een reset bij nieuwe fetch
 
         const eventsRes = await fetch("http://localhost:3000/events");
         const categoriesRes = await fetch("http://localhost:3000/categories");
@@ -28,6 +30,7 @@ export const EventsProvider = ({ children }) => {
         setCategories(categoriesData ?? []);
       } catch (error) {
         console.error("Fetch error:", error);
+        setError("Er ging iets mis bij het ophalen van de events."); // verbeterpunt 6 opslaan in catcgh
       } finally {
         setLoading(false);
       }
@@ -111,6 +114,7 @@ export const EventsProvider = ({ children }) => {
         events,
         categories,
         loading,
+        error, // feedback punt 6; error melding wordt teruggegeven
         addEvent,
         updateEvent,
         deleteEvent,

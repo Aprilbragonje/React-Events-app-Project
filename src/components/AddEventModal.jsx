@@ -11,9 +11,11 @@ import {
 import { useState } from "react";
 import { toaster } from "../components/ui/toaster";
 import { useEvents } from "../context/EventsContext";
+import { useNavigate } from "react-router-dom"; //feedb punt 5  router navig toegevoed
 
 const AddEventModal = ({ isOpen, onClose }) => {
   const { addEvent, categories } = useEvents();
+  const navigate = useNavigate(); //feedb punt 5 navigate hook toegevoegd
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -51,7 +53,7 @@ const AddEventModal = ({ isOpen, onClose }) => {
     };
 
     try {
-      await addEvent(eventData); //event opslaan server
+      const savedEvent = await addEvent(eventData); // feedb punt 5 veranderd van áwait addEvent...." naar dit savedEvent gebruiken.
 
       toaster.success({
         //notificatie
@@ -68,6 +70,8 @@ const AddEventModal = ({ isOpen, onClose }) => {
       setCategoryIds([]);
 
       onClose();
+
+      navigate(`/events/${savedEvent.id}`); // feedb punt 5  direct naar detailpagina
     } catch (err) {
       toaster.error({
         title: "Error",
